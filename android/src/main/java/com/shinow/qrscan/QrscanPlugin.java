@@ -50,26 +50,6 @@ public class QrscanPlugin implements MethodCallHandler, PluginRegistry.ActivityR
                 this.result = result;
                 showBarcodeView();
                 break;
-            case "scan_photo":
-                this.result = result;
-                choosePhotos();
-                break;
-            case "scan_path":
-                this.result = result;
-                String path = call.argument("path");
-                CodeUtils.AnalyzeCallback analyzeCallback = new CustomAnalyzeCallback(this.result, this.activity.getIntent());
-                CodeUtils.analyzeBitmap(path, analyzeCallback);
-                break;
-            case "scan_bytes":
-                this.result = result;
-                byte[] bytes = call.argument("bytes");
-                Bitmap  bitmap = BitmapFactory.decodeByteArray(bytes , 0, bytes != null ? bytes.length : 0);
-                CodeUtils.analyzeBitmap(bitmap, new CustomAnalyzeCallback(this.result, this.activity.getIntent()));
-                break;
-            case "generate_barcode":
-                this.result = result;
-                generateQrCode(call);
-                break;
             default:
                 result.notImplemented();
                 break;
@@ -79,22 +59,6 @@ public class QrscanPlugin implements MethodCallHandler, PluginRegistry.ActivityR
     private void showBarcodeView() {
         Intent intent = new Intent(activity, SecondActivity.class);
         activity.startActivityForResult(intent, REQUEST_CODE);
-    }
-
-    private void choosePhotos() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        activity.startActivityForResult(intent, REQUEST_IMAGE);
-    }
-
-    private void generateQrCode(MethodCall call) {
-        String code = call.argument("code");
-        Bitmap bitmap = CodeUtils.createImage(code, 400, 400, null);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] datas = baos.toByteArray();
-        this.result.success(datas);
     }
 
     @Override
